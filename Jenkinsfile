@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'dev-server' }
+    agent any
 
     environment {
         REPO_URL = "https://github.com/Mayur7225/node-todo-cicd.git"
