@@ -25,12 +25,14 @@ pipeline {
                 echo "Running npm install..."
                 sh '''
                     docker run --rm \
+                      -u root \
+                      --privileged \
                       -v "$PWD/source":/app \
                       -w /app \
                       node:18-alpine \
-                      sh -c "npm install"
-                '''
-            }
+                      sh -c "npm install --verbose"
+                  '''
+             }
         }
 
         stage('Build Docker Image') {
