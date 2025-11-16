@@ -15,16 +15,16 @@ pipeline {
                     rm -rf source
                     mkdir source
                     cd source
-                    git clone -b main ${REPO_URL} .
+                    git clone -b ${BRANCH} ${REPO_URL} .
                 '''
             }
         }
 
-        stage('Prepare Node Modules') {
+        stage('Install Node Modules') {
             steps {
-                echo "Installing npm modules..."
+                echo "Running npm install..."
                 sh '''
-                    cd source/app
+                    cd source
                     docker run --rm \
                         -v "$PWD":/app \
                         -w /app \
@@ -36,24 +36,27 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                echo "Building Docker image"
                 sh '''
                     cd source
-                    docker build -t mayur7225/todo-app:latest .
+                    docker build -t mayur7225/node-todo:latest .
                 '''
             }
         }
 
         stage('Push to DockerHub') {
             steps {
+                echo "Pushing Docker image"
                 sh '''
                     docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-                    docker push mayur7225/todo-app:latest
+                    docker push mayur7225/node-todo:latest
                 '''
             }
         }
 
         stage('Deploy') {
             steps {
+                echo "Deploying with Docker Compose"
                 sh '''
                     cd source
                     docker compose down || true
@@ -62,7 +65,17 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            echo "PIPELINE SUCCESSFUL ✅"
+        }
+        failure {
+            echo "PIPELINE FAILED ❌"
+        }
+    }
 }
+
 
        
       
