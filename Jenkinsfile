@@ -63,8 +63,8 @@ pipeline {
                 echo "Deploying with docker-compose..."
                 sh '''
                     cd source
-                    docker-compose down || true
-                    docker-compose up -d
+                    docker compose down || true
+                    docker compose up -d
                 '''
             }
         }
