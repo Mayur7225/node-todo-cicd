@@ -2,80 +2,98 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = "https://github.com/Mayur7225/node-todo-cicd.git"
-        DOCKER_CREDS = credentials('dockerhub')   // DockerHub credentials ID
+        DOCKER_IMAGE = "mayur7225/node-todo:latest"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Cloning clean repo..."
-                sh '''
-                    rm -rf source
-                    git clone -b main ${REPO_URL} source
-                    ls -l source
-                '''
+                git branch: 'main', url: 'https://github.com/Mayur7225/node-todo-cicd.git'
             }
         }
 
         stage('Install Node Modules') {
             steps {
-                echo "Running npm install..."
-                sh '''
-                    HOST_SOURCE="/var/lib/docker/volumes/jenkins_home/_data/workspace/${JOB_NAME}/source"
-                    echo "Using host source path: $HOST_SOURCE"
+                sh """
+                docker run --rm -v \$(pwd):/app -w /app node:18-alpine sh -c "npm install"
+                """
+            }
+        }
 
-                    docker run --rm \
-                      -v $HOST_SOURCE:/app \
-                      -w /app \
-                      node:18-alpine \
-                      sh -c "npm install"
-                '''
+        stage('SAST Scan - SonarQube') {
+            steps {
+                withSonarQubeEnv('sonarqube-server') {
+                    sh """
+                        sonar-scanner \
+                        -Dsonar.projectKey=node-todo \
+                        -Dsonar.sources=. \
+                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                    """
+                }
+            }
+        }
+
+        stage('Secrets Scan - GitLeaks') {
+            steps {
+                sh """
+                docker run --rm -v \$(pwd):/scan zricethezav/gitleaks:latest detect --source=/scan --no-banner || true
+                """
+            }
+        }
+
+        stage('Dependency Scan - Trivy FS Scan') {
+            steps {
+                sh """
+                docker run --rm -v \$(pwd):/app aquasec/trivy fs --exit-code 1 --severity HIGH,CRITICAL /app || true
+                """
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo "Building Docker Image..."
-                sh '''
-                    docker build -t mayur7225/node-todo:latest source
-                '''
+                sh """
+                docker build -t $DOCKER_IMAGE .
+                """
+            }
+        }
+
+        stage('Image Scan - Trivy Image Scan') {
+            steps {
+                sh """
+                docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKER_IMAGE || true
+                """
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                echo "Pushing Docker image..."
-
-                sh '''
-                    echo $DOCKER_CREDS_PSW | docker login \
-                      -u $DOCKER_CREDS_USR \
-                      --password-stdin
-
-                    docker push mayur7225/node-todo:latest
-                '''
+                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh """
+                    echo "$PASS" | docker login -u "$USER" --password-stdin
+                    docker push $DOCKER_IMAGE
+                    """
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Deploying with docker-compose..."
-                sh '''
-                    cd source
-                    docker compose down || true
-                    docker compose up -d
-                '''
+                sh """
+                docker compose down || true
+                docker compose up -d
+                """
             }
         }
     }
 
     post {
         success {
-            echo "PIPELINE SUCCESSFUL ✅"
+            echo "DevSecOps Pipeline Completed Successfully! 🎉"
         }
         failure {
-            echo "PIPELINE FAILED ❌"
+            echo "Pipeline Failed ❌"
         }
     }
 }
