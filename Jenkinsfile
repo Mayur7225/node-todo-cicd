@@ -24,7 +24,7 @@ pipeline {
             steps {
                 dir('source') {
                     sh """
-                    echo "PWD inside Jenkins = $(pwd)"
+                    echo "PWD inside Jenkins = \$(pwd)"
                     ls -l
 
                     docker run --rm \
