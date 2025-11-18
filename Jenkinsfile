@@ -23,7 +23,7 @@ pipeline {
         stage('Install Node Modules') {
             steps {
                 dir('source') {
-                    sh """
+                    sh '''
                     echo "PWD inside Jenkins = \$(pwd)"
                     ls -l
 
@@ -33,7 +33,7 @@ pipeline {
                     --user root \
                     node:18-alpine \
                     sh -c "npm install"
-                    """
+                    '''
                 }
             }
         }
