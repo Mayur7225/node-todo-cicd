@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+         skipDefaultcheckout(true)
+    }
+
     environment {
         DOCKER_IMAGE = "mayur7225/node-todo:latest"
     }
