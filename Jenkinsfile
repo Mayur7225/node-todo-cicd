@@ -13,7 +13,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                   git branch; 'main' , url: 'https://github.com/Mayur7225/node-todo-cicd.git'
+                   git branch: 'main' , url: 'https://github.com/Mayur7225/node-todo-cicd.git'
              }
           }
 
