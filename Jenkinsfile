@@ -23,10 +23,15 @@ pipeline {
         stage('Install Node Modules') {
             steps {
                 sh """
-                docker run --rm -v \$(pwd)/source:/app -w /app node:18-alpine sh -c "npm install"
-                """
+                docker run --rm \
+                -v $(pwd)/source:/app \
+                -w /app \
+                node:18-alpine \
+                sh -c "npm install"
+              """
             }
         }
+
 
         stage('SAST Scan - SonarQube') {
             steps {
