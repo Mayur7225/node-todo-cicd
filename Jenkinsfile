@@ -23,16 +23,11 @@ pipeline {
         stage('Install Node Modules') {
             steps {
                 dir('source') {
-                    sh '''#!/bin/sh
+                    sh '''
                     echo "PWD inside Jenkins = \$(pwd)"
                     ls -l
-
-                    docker run --rm \
-                    -v "${WORKSPACE}/source":/app \
-                    -w /app \
-                    --user root \
-                    node:18-alpine \
-                    sh -c "npm install"
+                    echo "Installing Node Modules..."
+                    npm install
                    '''
                 }
             }
