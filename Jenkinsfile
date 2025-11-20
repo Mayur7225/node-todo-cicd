@@ -42,7 +42,7 @@ pipeline {
                 dir('source') {
                     withSonarQubeEnv('sonarqube-server') {
                         sh """
-                        ${tool 'sonar-scanner'}/bin/sonar-scanner \
+                        \${tool 'sonar-scanner'}/bin/sonar-scanner \
                         -Dsonar.projectKey=node-todo \
                         -Dsonar.sources=. \
                         -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
