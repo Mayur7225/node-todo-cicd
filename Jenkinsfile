@@ -43,7 +43,7 @@ pipeline {
                 dir('source') {
                     withSonarQubeEnv('sonarqube-server') {
                         script {
-                             def scannerHome = tool 'sonar-scanner'
+                             def scanner = tool name: 'sonar-scanner'
                              sh """
                             ${scanner}/bin/sonar-scanner \
                             -Dsonar.projectKey=node-todo \
