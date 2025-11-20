@@ -45,7 +45,7 @@ pipeline {
                         script {
                              def scannerHome = tool 'sonar-scanner'
                              sh """
-                            ${sonar-scanner}/bin/sonar-scanner \
+                            ${scanner}/bin/sonar-scanner \
                             -Dsonar.projectKey=node-todo \
                             -Dsonar.sources=. \
                             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
