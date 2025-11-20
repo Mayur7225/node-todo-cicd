@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs 'node18'
+        sonarscanner 'sonar-scanner'
     }
 
     options {
