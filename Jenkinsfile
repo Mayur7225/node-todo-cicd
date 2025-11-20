@@ -45,15 +45,15 @@ pipeline {
                         script {
                              def scanner = tool name: 'sonar-scanner'
                              sh """
-                            ${scanner}/bin/sonar-scanner \
-                            -Dsonar.projectKey=node-todo \
-                            -Dsonar.sources=. \
-                            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                        """
-                    }
+                               ${scanner}/bin/sonar-scanner \
+                               -Dsonar.projectKey=node-todo \
+                               -Dsonar.sources=. \
+                               -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                            """
+                         }
+                      }
+                   }
                 }
-            }
-        }
 
         stage('Secrets Scan - GitLeaks') {
             steps {
